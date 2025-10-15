@@ -69,7 +69,8 @@ services:
       - net.ipv4.tcp_keepalive_time=200
 
   pgbouncer:
-    image: docker.io/bitnami/pgbouncer:1
+    # image: docker.io/bitnami/pgbouncer:1
+    image: docker.io/bitnamilegacy/pgbouncer:1
     ports:
       - 6432:6432
     environment:
