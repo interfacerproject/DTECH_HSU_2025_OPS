@@ -106,7 +106,7 @@ services:
       options:
         max-file: "5"
         max-size: "15m"
-   mongodb:
+  mongodb:
     image: mongo:latest
     container_name: dpp-mongodb
     ports:
@@ -115,9 +115,8 @@ services:
       - mongodb_data:/data/db
     networks:
       - dpp-network
-
   interfacer-dpp:
-    image: ghcr.io/interfacerproject/interfacer-dpp:main
+    image: ghcr.io/interfacerproject/interfacer-dpp:latest
     container_name: interfacer-dpp
     ports:
       - "8080:8080"
@@ -127,6 +126,7 @@ services:
       - mongodb
     networks:
       - dpp-network
+
 volumes:
   wallet_data:
   inbox_data:
