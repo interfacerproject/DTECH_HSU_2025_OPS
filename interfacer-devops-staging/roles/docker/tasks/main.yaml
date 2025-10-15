@@ -38,8 +38,13 @@
 #   pip:
 #     name: docker
 ---
-- debug: var=ansible_all_ipv4_addresses
-- debug: var=ansible_default_ipv4.address
+- name: Debug output all ip address
+  ansible.builtin.debug:
+    var: ansible_all_ipv4_addresses
+
+- name: Debug output default ip address
+  ansible.builtin.debug:
+    var: ansible_default_ipv4.address
 
 # - name: Update and upgrade all packages to the latest version
 #   ansible.builtin.apt:

@@ -16,32 +16,33 @@
 
 ---
 - name: Create base directory
-  file:
+  ansible.builtin.file:
     path: "{{ losh_basedir }}"
     state: directory
     owner: root
     group: root
 
 - name: Copy import script
-  template:
+  ansible.builtin.template:
     src: losh_import.sh.j2
     dest: "{{ losh_basedir }}/losh_import.sh"
     owner: root
     group: root
 
 - name: Copy env file
-  template:
+  ansible.builtin.template:
     src: .env.j2
     dest: "{{ losh_basedir }}/.env"
     owner: root
     group: root
 
 - name: Changing perm of "losh_import.sh", adding "+x"
-  file: dest="{{ losh_basedir }}/losh_import.sh" mode=a+x
+  ansible.builtin.file:
+    dest: "{{ losh_basedir }}/losh_import.sh"
+    mode: a+x
 
 - name: Set cron for losh import
-  cron:
+  ansible.builtin.cron:
     name: "check losh available"
     weekday: 0
     job: "cd {{ losh_basedir }} && ./losh_import.sh"
-
