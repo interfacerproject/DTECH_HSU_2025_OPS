@@ -38,10 +38,10 @@
     group: root
     mode: "0664"
 
-# - name: Tear down existing services
-#   community.docker.docker_compose_v2:
-#     project_src: "{{ basedir }}/"
-#     state: absent
+- name: Tear down existing services
+  community.docker.docker_compose_v2:
+    project_src: "{{ basedir }}/"
+    state: absent
 
 - name: Create and start services
   community.docker.docker_compose_v2:

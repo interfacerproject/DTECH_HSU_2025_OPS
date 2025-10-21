@@ -71,7 +71,7 @@ resource "null_resource" "wait_for_ping" {
   depends_on = [hcloud_server.interfacer]
 
   provisioner "local-exec" {
-    command = "../ping_new.sh ${local.hostname}"
+    command = "./ping_new.sh ${local.hostname}"
   }
 }
 

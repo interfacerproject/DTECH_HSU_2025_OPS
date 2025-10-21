@@ -14,23 +14,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 ---
 - name: Generate random hexadecimal strings
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Add ssh keys from a template file
-      ansible.builtin.blockinfile:
-        path: /root/.ssh/authorized_keys
-        block: "{{ lookup('ansible.builtin.file', 'templates/authorized_keys.j2') }}"
-        state: present
-
     - name: Generate the admin key
       ansible.builtin.command: openssl rand -hex 64
       register: random_admin_key
       changed_when: random_admin_key.rc != 0 # <- Uses the return code to define when the task has changed.
-
 
     - name: Generate the room salt
       ansible.builtin.command: openssl rand -hex 64
@@ -68,6 +60,29 @@
 - name: Install the inbox service
   hosts: all
   remote_user: root
+  tasks:
+    - name: Ensure .ssh directory exists
+      file:
+        path: /root/.ssh
+        state: directory
+        mode: '0700'
+        owner: root
+        group: root
+
+    - name: Ensure authorized_keys file exists
+      file:
+        path: /root/.ssh/authorized_keys
+        state: touch
+        mode: '0600'
+        owner: root
+        group: root
+      changed_when: false
+
+    - name: Add ssh keys from a template file
+      ansible.builtin.blockinfile:
+        path: /root/.ssh/authorized_keys
+        block: "{{ lookup('ansible.builtin.file', 'templates/authorized_keys.j2') }}"
+        state: present
   roles:
     - docker
     - zenflows

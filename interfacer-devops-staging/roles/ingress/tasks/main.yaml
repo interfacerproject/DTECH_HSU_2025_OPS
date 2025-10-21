@@ -23,7 +23,7 @@
     state: latest
 
 - name: Create Caddyfile
-  template:
+  ansible.builtin.template:
     src: Caddyfile.j2
     dest: "/etc/caddy/Caddyfile"
     owner: root

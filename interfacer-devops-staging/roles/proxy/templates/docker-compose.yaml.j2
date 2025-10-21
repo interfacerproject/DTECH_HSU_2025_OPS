@@ -27,6 +27,7 @@ services:
       ADDR: :80
       INBOX_URL: "http://inbox"
       WALLET_URL: "http://wallet"
+      INTERFACER_DPP_URL: "http://interfacer-dpp:8080"
       OSH_URL: "http://osh/"
       IFACER_LOG: "/log"
     logging:
@@ -105,6 +106,49 @@ services:
       options:
         max-file: "5"
         max-size: "15m"
+  mongodb:
+    image: mongo:7.0
+    container_name: dpp-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=dpp_db
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "15m"
+  
+  interfacer-dpp:
+    image: ghcr.io/interfacerproject/interfacer-dpp:latest
+    container_name: interfacer-dpp
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "15m"
+
 volumes:
   wallet_data:
   inbox_data:
+  mongodb_data:
+    driver: local
+  mongodb_config: 
+    driver: local
