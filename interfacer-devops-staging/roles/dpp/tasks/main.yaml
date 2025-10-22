@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2022-2023 Dyne.org foundation <foundation@dyne.org>.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+---
+- name: Create base directory
+  ansible.builtin.file:
+    path: "{{ basedir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0664"
+
+- name: Create MongoDB data directory
+  ansible.builtin.file:
+    path: "{{ basedir }}/mongodb_data"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create MongoDB config directory
+  ansible.builtin.file:
+    path: "{{ basedir }}/mongodb_config"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Prune containers older than 24h
+  community.docker.docker_prune:
+    containers: true
+    containers_filters:
+      # only consider containers created more than 24 hours ago
+      until: 24h
+
+- name: Create docker-compose.yaml
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: "{{ basedir }}/docker-compose.yaml"
+    owner: root
+    group: root
+    mode: "0664"
+
+- name: Tear down existing services
+  community.docker.docker_compose_v2:
+    project_src: "{{ basedir }}/"
+    state: absent
+
+- name: Create and start services
+  community.docker.docker_compose_v2:
+    pull: always
+    project_src: "{{ basedir }}/"
+  register: output
+
+- name: Debug output
+  ansible.builtin.debug:
+    var: output
