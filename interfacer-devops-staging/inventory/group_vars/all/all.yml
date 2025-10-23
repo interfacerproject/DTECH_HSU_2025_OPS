@@ -4,5 +4,6 @@ zenflows_domain_name: "zenflows.{{ domain_name }}"
 zenflows: "https://zenflows.{{ domain_name }}"
 zenflows_port: 8000
 proxy_port: 20000
+dpp_domain_name: "interfacer-dpp.{{ domain_name }}"
 admin_key: d1cd78cb8917d4f00540df5fca35378f6b279a3beadf70855aaa575c50e594108c6cfb5ba1c0a1de310f26591a31fdcbbb958806e606e70c152159b11425400f
 room_salt: 9098e0962ce51908995c520ab840649debb958a8a2605400a2df7eacde9eabb402fb5ec86b06ffda07c98d6e3612573cbf465afd38b890fd2b22d271ca8bf91f
