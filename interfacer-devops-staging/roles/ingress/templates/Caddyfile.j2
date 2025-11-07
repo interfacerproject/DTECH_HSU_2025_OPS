@@ -13,3 +13,7 @@
 {{ gui_domain_name }} {
         reverse_proxy localhost:3000
 }
+
+{{ dpp_domain_name }} {
+        reverse_proxy localhost:{{ dpp_port }}
+}
