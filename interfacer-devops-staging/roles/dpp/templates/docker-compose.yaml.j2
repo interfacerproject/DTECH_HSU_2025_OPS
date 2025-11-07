@@ -20,12 +20,12 @@ services:
     container_name: dpp-mongodb
     restart: always
     ports:
-      - "{{ mongodb_port }}:27017"
+      - "{{ dpp_mongodb_port }}:27017"
     environment:
       - MONGO_INITDB_DATABASE=dpp_db
     volumes:
-      - {{ basedir }}/mongodb_data:/data/db
-      - {{ basedir }}/mongodb_config:/data/configdb
+      - {{ dpp_basedir }}/mongodb_data:/data/db
+      - {{ dpp_basedir }}/mongodb_config:/data/configdb
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s

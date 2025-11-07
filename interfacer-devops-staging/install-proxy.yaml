@@ -86,8 +86,8 @@
   roles:
     - docker
     - zenflows
+    - dpp
     - proxy
     - gui
-    - ingress
     - ifacerlosh
-    - dpp
+    - ingress

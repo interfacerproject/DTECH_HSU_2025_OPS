@@ -19,5 +19,3 @@ basedir: "/interfacer-gateway-{{ proxy_port }}"
 ifacer_log: /var/log/interfacer-test/
 inbox_port: 21000
 wallet_port: 22000
-dpp_host: "interfacer-dpp"
-dpp_port: 8080

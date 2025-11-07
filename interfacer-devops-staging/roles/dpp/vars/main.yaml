@@ -15,6 +15,5 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ---
-basedir: "/interfacer-dpp"
-mongodb_port: 27017
-dpp_port: 8080
+dpp_basedir: "/interfacer-dpp"
+dpp_mongodb_port: 27017
