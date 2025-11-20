@@ -35,8 +35,13 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-file: "5"
-        max-size: "15m"
+        max-file: "3"
+        max-size: "10m"
+    command:
+      - mongod
+      - --quiet
+      - --logpath
+      - /dev/null
   
   interfacer-dpp:
     image: ghcr.io/interfacerproject/interfacer-dpp:latest
