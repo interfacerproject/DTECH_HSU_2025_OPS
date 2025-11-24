@@ -16,4 +16,9 @@
 
 ---
 dpp_basedir: "/interfacer-dpp"
+dpp_port: 8080
 dpp_mongodb_port: 27017
+dpp_minio_port: 9000
+dpp_minio_console_port: 9001
+dpp_minio_root_user: "admin"
+dpp_minio_root_password: "passwordsegreta"
