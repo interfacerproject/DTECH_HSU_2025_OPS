@@ -99,8 +99,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      createbuckets:
-        condition: service_completed_successfully
     networks:
       - dpp-network
     logging:
