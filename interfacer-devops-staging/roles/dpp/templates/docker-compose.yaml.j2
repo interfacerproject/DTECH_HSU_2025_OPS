@@ -96,6 +96,7 @@ services:
       - MINIO_SECRET_KEY={{ dpp_minio_root_password }}
       - MINIO_BUCKET=dpp-assets
       - MINIO_USE_SSL=false
+      - SERVER_URL=https://{{ dpp_domain_name }}
     depends_on:
       mongodb:
         condition: service_healthy
