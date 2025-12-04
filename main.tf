@@ -31,7 +31,7 @@ provider "cloudflare" {
 resource "hcloud_server" "interfacer" {
   name        = var.name
   image       = "debian-12"
-  server_type = "cx22"
+  server_type = "cx33"
   ssh_keys    = [var.hetzner_ssh_key_name]
 }
 

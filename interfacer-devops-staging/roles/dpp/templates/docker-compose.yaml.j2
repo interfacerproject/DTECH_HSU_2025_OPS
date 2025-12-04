@@ -32,11 +32,56 @@ services:
       timeout: 5s
       retries: 5
       start_period: 40s
+    networks:
+      - dpp-network
     logging:
       driver: "json-file"
       options:
         max-file: "5"
         max-size: "15m"
+
+  minio:
+    image: minio/minio:latest
+    container_name: dpp-minio
+    restart: always
+    ports:
+      - "{{ dpp_minio_port }}:9000" 
+      - "{{ dpp_minio_console_port }}:9001" 
+    environment:
+      - MINIO_ROOT_USER={{ dpp_minio_root_user }}
+      - MINIO_ROOT_PASSWORD={{ dpp_minio_root_password }}
+    command: server /data --console-address ":9001"
+    volumes:
+      - {{ dpp_basedir }}/minio_data:/data
+    networks:
+      - dpp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "15m"
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - dpp-network
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 {{ dpp_minio_root_user }} {{ dpp_minio_root_password }};
+      /usr/bin/mc mb myminio/dpp-assets;
+      /usr/bin/mc anonymous set download myminio/dpp-assets;
+      exit 0;
+      "
   
   interfacer-dpp:
     image: ghcr.io/interfacerproject/interfacer-dpp:latest
@@ -46,11 +91,25 @@ services:
       - "{{ dpp_port }}:8080"
     environment:
       - MONGODB_URI=mongodb://mongodb:27017
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY={{ dpp_minio_root_user }}
+      - MINIO_SECRET_KEY={{ dpp_minio_root_password }}
+      - MINIO_BUCKET=dpp-assets
+      - MINIO_USE_SSL=false
+      - SERVER_URL=https://{{ dpp_domain_name }}
     depends_on:
       mongodb:
         condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - dpp-network
     logging:
       driver: "json-file"
       options:
         max-file: "5"
         max-size: "15m"
+
+networks:
+  dpp-network:
+    driver: bridge
