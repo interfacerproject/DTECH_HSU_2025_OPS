@@ -70,11 +70,13 @@ services:
   createbuckets:
     image: minio/mc
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     networks:
       - dpp-network
     entrypoint: >
       /bin/sh -c "
+      sleep 5;
       /usr/bin/mc alias set myminio http://minio:9000 {{ dpp_minio_root_user }} {{ dpp_minio_root_password }};
       /usr/bin/mc mb myminio/dpp-assets;
       /usr/bin/mc anonymous set download myminio/dpp-assets;
