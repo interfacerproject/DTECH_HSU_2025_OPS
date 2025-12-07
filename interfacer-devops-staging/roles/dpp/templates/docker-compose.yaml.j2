@@ -18,16 +18,18 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: dpp-mongodb
-    restart: always
+    restart: unless-stopped
     ports:
-      - "{{ dpp_mongodb_port }}:27017"
+      - "127.0.0.1:27017:27017"
     environment:
       - MONGO_INITDB_DATABASE=dpp_db
+      - MONGO_INITDB_ROOT_USERNAME={{ dpp_mongo_root_username }}
+      - MONGO_INITDB_ROOT_PASSWORD={{ dpp_mongo_root_password }}
     volumes:
       - {{ dpp_basedir }}/mongodb_data:/data/db
       - {{ dpp_basedir }}/mongodb_config:/data/configdb
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "-u", "{{ dpp_mongo_root_username }}", "-p", "{{ dpp_mongo_root_password }}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -90,7 +92,7 @@ services:
     ports:
       - "{{ dpp_port }}:8080"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_URI=mongodb://{{ dpp_mongo_root_username }}:{{ dpp_mongo_root_password }}@mongodb:27017/dpp_db?authSource=admin
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY={{ dpp_minio_root_user }}
       - MINIO_SECRET_KEY={{ dpp_minio_root_password }}
