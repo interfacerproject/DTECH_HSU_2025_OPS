@@ -1,3 +1,5 @@
+gui_suffix: ""
+gui_image_name: "ghcr.io/interfacerproject/interfacer-gui{{ '-' + gui_suffix if gui_suffix else '' }}"
 gui_domain_name: "{{ domain_name }}"
 proxy_domain_name: "proxy.{{ domain_name }}"
 zenflows_domain_name: "zenflows.{{ domain_name }}"
@@ -5,5 +7,5 @@ zenflows: "https://zenflows.{{ domain_name }}"
 zenflows_port: 8000
 proxy_port: 20000
 dpp_domain_name: "interfacer-dpp.{{ domain_name }}"
-admin_key: d1cd78cb8917d4f00540df5fca35378f6b279a3beadf70855aaa575c50e594108c6cfb5ba1c0a1de310f26591a31fdcbbb958806e606e70c152159b11425400f
-room_salt: 9098e0962ce51908995c520ab840649debb958a8a2605400a2df7eacde9eabb402fb5ec86b06ffda07c98d6e3612573cbf465afd38b890fd2b22d271ca8bf91f
+admin_key: a3dc1fb260fd54137b1af7b4cf4ce222a40a3c86ef6d200597a856dcd3c139d1e21b8deafd709264b7309e3b130c79dbb0e8693fa7024f2a05cc751a150be67d
+room_salt: f69c098fc8451d4228bb48e9b8e0bb481e2d2699856dd5aaea00321c3faf70a4c8b18aebc33549b9fa42391e967b366886a167a905afefd3c1960551ea588d05

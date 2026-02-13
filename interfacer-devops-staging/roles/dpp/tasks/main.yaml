@@ -54,6 +54,14 @@
     group: root
     mode: "0664"
 
+- name: Create mongod.conf
+  ansible.builtin.template:
+    src: mongod.conf.j2
+    dest: "{{ dpp_basedir }}/mongod.conf"
+    owner: root
+    group: root
+    mode: "0664"
+
 - name: Tear down existing services
   community.docker.docker_compose_v2:
     project_src: "{{ dpp_basedir }}/"

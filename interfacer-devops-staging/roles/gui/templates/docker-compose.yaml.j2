@@ -17,7 +17,7 @@
 # version: "3"
 services:
   gui:
-    image: ghcr.io/interfacerproject/interfacer-gui:latest
+    image: {{ gui_image_name }}:latest
     ports:
       - 3000:3000
     env_file:

@@ -7,7 +7,7 @@ terraform {
     }
     gandi = {
       source  = "go-gandi/gandi"
-      version = "~> 2.0"
+      version = "~> 2.0.0"
     }
     # cloudflare = {
     #   source  = "cloudflare/cloudflare"
@@ -21,7 +21,7 @@ provider "hcloud" {
 }
 
 provider "gandi" {
-  personal_access_token = var.gandi_token
+  key = var.gandi_token
 }
 
 provider "cloudflare" {
@@ -29,7 +29,7 @@ provider "cloudflare" {
 }
 
 resource "hcloud_server" "interfacer" {
-  name        = var.name
+  name        = local.name_with_suffix
   image       = "debian-12"
   server_type = "cx33"
   ssh_keys    = [var.hetzner_ssh_key_name]
@@ -42,7 +42,7 @@ output "instance_public_ip" {
 
 resource "gandi_livedns_record" "interfacer" {
   zone       = var.domain
-  name       = var.name
+  name       = local.name_with_suffix
   type       = "A"
   ttl        = 300
   values     = [hcloud_server.interfacer.ipv4_address]
@@ -86,6 +86,7 @@ resource "null_resource" "wait_for_ping" {
 
 locals {
   depends_on       = null_resource.wait_for_ping
+  name_with_suffix = var.suffix != "" ? "${var.name}-${var.suffix}" : var.name
   hostname         = "${gandi_livedns_record.interfacer.name}.${gandi_livedns_record.interfacer.zone}"
   known_hosts_file = "~/.ssh/known_hosts"
 }
@@ -136,6 +137,7 @@ resource "null_resource" "run_ansible" {
 ansible-playbook -i ${local_file.ansible_inventory.filename} \
 --vault-password-file interfacer-devops-staging/.vault_pass \
 -e domain_name=${local.hostname} \
+-e gui_suffix=${var.suffix} \
 interfacer-devops-staging/install-proxy.yaml
 EOT
   }
