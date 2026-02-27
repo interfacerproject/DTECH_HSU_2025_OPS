@@ -9,10 +9,6 @@ terraform {
       source  = "go-gandi/gandi"
       version = "~> 2.0.0"
     }
-    # cloudflare = {
-    #   source  = "cloudflare/cloudflare"
-    #   version = "4.38.0"
-    # }
   }
 }
 
@@ -157,15 +153,6 @@ EOT
 # mv ~/.ssh/known_hosts.new ~/.ssh/known_hosts
 #     EOT
 #   }
-# }
-
-# Create a record
-# resource "cloudflare_record" "tofutwo" {
-#   zone_id = "dyne.im"
-#   name    = "tofutwo"
-#   content = hcloud_server.interfacer.ipv4_address
-#   type    = "A"
-#   ttl     = 300
 # }
 
 # 2024-12-18.17:51:54 trkdz-d7-ceres antoniotrkdz /home/antoniotrkdz/dyne/devops  2016  ansible-playbook -u root -i hosts_test.yaml --vault-pass-file .vault_pass install-proxy.yaml --key-file ~/.ssh/id_rsa
