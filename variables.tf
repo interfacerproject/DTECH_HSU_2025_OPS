@@ -4,12 +4,30 @@ variable "hcloud_token" {
   sensitive = true
 }
 
-variable "gandi_token" {
+variable "cloudflare_token" {
   sensitive = true
 }
 
-variable "cloudflare_token" {
-  sensitive = true
+variable "dns_server" {
+  description = "DNS server address for dynamic updates"
+  type        = string
+}
+
+variable "dns_tsig_key_name" {
+  description = "TSIG key name"
+  type        = string
+}
+
+variable "dns_tsig_algorithm" {
+  description = "TSIG key algorithm (e.g., hmac-sha256)"
+  type        = string
+  default     = "hmac-sha256"
+}
+
+variable "dns_tsig_secret" {
+  description = "TSIG key secret (base64 encoded)"
+  type        = string
+  sensitive   = true
 }
 
 variable "domain" {

@@ -5,9 +5,9 @@ terraform {
       source  = "hetznercloud/hcloud"
       version = "1.27.2"
     }
-    gandi = {
-      source  = "go-gandi/gandi"
-      version = "~> 2.0.0"
+    dns = {
+      source  = "hashicorp/dns"
+      version = "~> 3.0"
     }
     # cloudflare = {
     #   source  = "cloudflare/cloudflare"
@@ -20,8 +20,13 @@ provider "hcloud" {
   token = var.hcloud_token
 }
 
-provider "gandi" {
-  key = var.gandi_token
+provider "dns" {
+  update {
+    server        = var.dns_server
+    key_name      = var.dns_tsig_key_name
+    key_algorithm = var.dns_tsig_algorithm
+    key_secret    = var.dns_tsig_secret
+  }
 }
 
 provider "cloudflare" {
@@ -40,44 +45,39 @@ output "instance_public_ip" {
   value       = hcloud_server.interfacer.ipv4_address
 }
 
-resource "gandi_livedns_record" "interfacer" {
-  zone       = var.domain
-  name       = local.name_with_suffix
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
+resource "dns_a_record_set" "interfacer" {
+  zone      = "${var.domain}."
+  name      = local.name_with_suffix
+  addresses = [hcloud_server.interfacer.ipv4_address]
+  ttl       = 300
 }
 
-resource "gandi_livedns_record" "proxy_interfacer" {
-  zone       = var.domain
-  name       = "proxy.${gandi_livedns_record.interfacer.name}"
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
+resource "dns_a_record_set" "proxy_interfacer" {
+  zone      = "${var.domain}."
+  name      = "proxy.${local.name_with_suffix}"
+  addresses = [hcloud_server.interfacer.ipv4_address]
+  ttl       = 300
 }
 
-resource "gandi_livedns_record" "zenflows_interfacer" {
-  zone       = var.domain
-  name       = "zenflows.${gandi_livedns_record.interfacer.name}"
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
+resource "dns_a_record_set" "zenflows_interfacer" {
+  zone      = "${var.domain}."
+  name      = "zenflows.${local.name_with_suffix}"
+  addresses = [hcloud_server.interfacer.ipv4_address]
+  ttl       = 300
 }
 
-resource "gandi_livedns_record" "dpp_interfacer" {
-  zone       = var.domain
-  name       = "interfacer-dpp.${gandi_livedns_record.interfacer.name}"
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
+resource "dns_a_record_set" "dpp_interfacer" {
+  zone      = "${var.domain}."
+  name      = "interfacer-dpp.${local.name_with_suffix}"
+  addresses = [hcloud_server.interfacer.ipv4_address]
+  ttl       = 300
 }
 
 resource "null_resource" "wait_for_ping" {
-  depends_on = [hcloud_server.interfacer]
+  depends_on = [
+    hcloud_server.interfacer,
+    dns_a_record_set.interfacer,
+  ]
 
   provisioner "local-exec" {
     command = "./ping_new.sh ${local.hostname}"
@@ -87,8 +87,8 @@ resource "null_resource" "wait_for_ping" {
 locals {
   depends_on       = null_resource.wait_for_ping
   name_with_suffix = var.suffix != "" ? "${var.name}-${var.suffix}" : var.name
-  hostname         = "${gandi_livedns_record.interfacer.name}.${gandi_livedns_record.interfacer.zone}"
-  known_hosts_file = "~/.ssh/known_hosts"
+  hostname         = "${local.name_with_suffix}.${var.domain}"
+  known_hosts_file = "$HOME/.ssh/known_hosts"
 }
 
 output "instance_name" {
@@ -105,9 +105,9 @@ all:
 EOT
 }
 
-# Write the inventory file to the filesystem
+# Write the inventory file to the filesystem (per-workspace to avoid conflicts)
 resource "local_file" "ansible_inventory" {
-  filename = "${path.module}/interfacer-devops-staging/inventory/hosts.yml"
+  filename = "${path.module}/interfacer-devops-staging/inventory/hosts-${terraform.workspace}.yml"
   content  = data.template_file.ansible_inventory.rendered
 }
 
