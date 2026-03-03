@@ -1,6 +1,5 @@
 # Interfacer Staging
 
-Follow the steps in (this guide)[https://justobjects.nl/terraform-first-steps/]
 
 ## Prerequisites
 1. Install Open Tofu
@@ -60,13 +59,15 @@ Your local machine also needs:
 2. Go to **Security → SSH Keys** and upload your public key — note the key name exactly
 3. Go to **Security → API Tokens** and create a token with **Read & Write** permissions
 
+[This guide](https://justobjects.nl/terraform-first-steps/) is a nice starter and focuses on Hetzener cloud
+
 ---
 
 ## 3. DNS Setup
 
 Choose one of the two supported DNS backends.
 
-### Option A — RFC 2136 / TSIG (self-hosted nameserver) ✅ currently active
+### Option A — RFC 2136 / TSIG (self-hosted nameserver)
 
 You need the IP address of your nameserver and a TSIG key with write permission on the target zone.
 
@@ -96,7 +97,7 @@ send
 EOF
 ```
 
-No changes to `main.tf` or `variables.tf` are needed — this is the current active configuration.
+This setup is available on the `self-hosted-dns` branch of this repo.
 
 ---
 
@@ -118,9 +119,9 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 A successful response returns domain metadata. A `403 Forbidden` means the token lacks permissions or belongs to a different account.
 
-**3. Swap the provider in [main.tf](main.tf):**
+**3. Check the provider in [main.tf](main.tf):**
 
-Replace the `required_providers` block entry and provider block:
+This are the relevant section to check:
 
 ```hcl
 # In terraform { required_providers { ... } }
@@ -135,53 +136,7 @@ provider "gandi" {
 }
 ```
 
-Remove or comment out the `dns` provider entry and block.
-
-**4. Replace DNS record resources in [main.tf](main.tf):**
-
-Replace each `dns_a_record_set` resource with `gandi_livedns_record`:
-
-```hcl
-resource "gandi_livedns_record" "interfacer" {
-  zone       = var.domain
-  name       = local.name_with_suffix
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
-}
-
-resource "gandi_livedns_record" "proxy_interfacer" {
-  zone       = var.domain
-  name       = "proxy.${local.name_with_suffix}"
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
-}
-
-resource "gandi_livedns_record" "zenflows_interfacer" {
-  zone       = var.domain
-  name       = "zenflows.${local.name_with_suffix}"
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
-}
-
-resource "gandi_livedns_record" "dpp_interfacer" {
-  zone       = var.domain
-  name       = "interfacer-dpp.${local.name_with_suffix}"
-  type       = "A"
-  ttl        = 300
-  values     = [hcloud_server.interfacer.ipv4_address]
-  depends_on = [hcloud_server.interfacer]
-}
-```
-
-Also update the `depends_on` in `null_resource.wait_for_ping` to reference `gandi_livedns_record.interfacer` instead of `dns_a_record_set.interfacer`.
-
-**5. Add `gandi_token` to [variables.tf](variables.tf):**
+**4. Add `gandi_token` to [variables.tf](variables.tf):**
 
 ```hcl
 variable "gandi_token" {
