@@ -22,4 +22,18 @@ services:
       - 3000:3000
     env_file:
       - ./gui.env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=300
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_CLEANUP=true
+      - REPO_USER={{ ghcr_username }}
+      - REPO_PASS={{ ghcr_token }}
 
