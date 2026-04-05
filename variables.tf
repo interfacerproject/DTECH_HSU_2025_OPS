@@ -12,8 +12,20 @@ variable "cloudflare_token" {
   sensitive = true
 }
 
-variable "domain" {}
+variable "domain" {
+  description = "Main domain name"
+  type        = string
+  # default     = "dyne.im"
+}
 
-variable "name" {}
+variable "name" {
+  description = "Third level domain name"
+  type        = string
+}
+
+variable "suffix" {
+  description = "Optional suffix for instance name and GUI service (e.g., 'tchibo')"
+  type        = string
+}
 
 variable "hetzner_ssh_key_name" {}

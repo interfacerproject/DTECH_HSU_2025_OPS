@@ -83,11 +83,25 @@
         path: /root/.ssh/authorized_keys
         block: "{{ lookup('ansible.builtin.file', 'templates/authorized_keys.j2') }}"
         state: present
+
   roles:
-    - docker
-    - zenflows
-    - dpp
-    - proxy
-    - gui
-    - ifacerlosh
-    - ingress
+    - role: docker
+      tags: docker
+      
+    - role: zenflows
+      tags: zenflows
+      
+    - role: dpp
+      tags: dpp
+      
+    - role: proxy
+      tags: proxy
+      
+    - role: gui
+      tags: gui
+      
+    - role: ifacerlosh
+      tags: ifacerlosh
+      
+    - role: ingress
+      tags: ingress

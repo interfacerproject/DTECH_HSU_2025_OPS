@@ -18,16 +18,20 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: dpp-mongodb
-    restart: always
+    restart: unless-stopped
     ports:
-      - "{{ dpp_mongodb_port }}:27017"
+      - "127.0.0.1:{{dpp_mongodb_port}}:27017"
     environment:
       - MONGO_INITDB_DATABASE=dpp_db
+      - MONGO_INITDB_ROOT_USERNAME={{ dpp_mongo_root_username }}
+      - MONGO_INITDB_ROOT_PASSWORD={{ dpp_mongo_root_password }}
     volumes:
       - {{ dpp_basedir }}/mongodb_data:/data/db
       - {{ dpp_basedir }}/mongodb_config:/data/configdb
+      - {{ dpp_basedir }}/mongod.conf:/etc/mongod.conf:ro
+    command: ["mongod", "--config", "/etc/mongod.conf"]
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "-u", "{{ dpp_mongo_root_username }}", "-p", "{{ dpp_mongo_root_password }}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,6 +43,70 @@ services:
       options:
         max-file: "5"
         max-size: "15m"
+
+  mongodb-maintenance:
+    image: mongo:7.0
+    container_name: dpp-mongodb-maintenance
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - {{ dpp_basedir }}/mongodb_data:/data/db
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        echo 'MongoDB Maintenance Container started';
+        echo 'Waiting for MongoDB to be fully ready...'
+        sleep 30
+        while true; do
+          sleep 86400;
+          
+          echo "[$$(date '+%Y-%m-%d %H:%M:%S')] Starting MongoDB maintenance";
+          
+          # 1. Rotate MongoDB logs
+          echo "  - Rotating logs...";
+          mongosh 'mongodb://{{ dpp_mongo_root_username }}:{{ dpp_mongo_root_password }}@dpp-mongodb:27017/admin?authSource=admin' --quiet --eval 'db.adminCommand({logRotate: 1})';
+          
+          # 2. Clean old logs (keep last 3 days)
+          echo "  - Cleaning old logs...";
+          find /data/db -name 'mongod.log.*' -mtime +3 -type f -delete 2>/dev/null;
+          OLD_LOGS=$$(find /data/db -name 'mongod.log.*' -type f 2>/dev/null | wc -l);
+          echo "    Remaining old logs: $$OLD_LOGS";
+          
+          # 3. Clean old journals (keep last 2 days)
+          echo "  - Cleaning old journals...";
+          if [ -d /data/db/journal ]; then
+            find /data/db/journal -name 'j._*' -mtime +2 -type f -delete 2>/dev/null;
+            JOURNAL_COUNT=$$(find /data/db/journal -name 'j._*' -type f 2>/dev/null | wc -l);
+            JOURNAL_SIZE=$$(du -sh /data/db/journal 2>/dev/null | cut -f1);
+            echo "    Remaining journals: $$JOURNAL_COUNT files ($$JOURNAL_SIZE)";
+          fi;
+          
+          # 4. Clean mongosh logs/cache
+          echo "  - Cleaning mongosh cache...";
+          rm -rf /data/db/.mongodb/mongosh/* 2>/dev/null;
+          
+          # 5. Final statistics
+          echo "  - Space statistics:";
+          TOTAL_SIZE=$$(du -sh /data/db 2>/dev/null | cut -f1);
+          echo "    Total data: $$TOTAL_SIZE";
+          echo "    Log files:";
+          du -sh /data/db/mongod.log* 2>/dev/null | awk '{print "      - " $$2 ": " $$1}' || echo '      No log files found';
+          LOG_TOTAL=$$(du -shc /data/db/mongod.log* 2>/dev/null | tail -1 | cut -f1 || echo '0');
+          echo "    Total logs: $$LOG_TOTAL";
+          
+          echo "[$$(date '+%Y-%m-%d %H:%M:%S')] Maintenance completed";
+          echo "-----------------------------------";
+        done
+    networks:
+      - dpp-network
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "2"
+        max-size: "5m"
 
   minio:
     image: minio/minio:latest
@@ -90,7 +158,7 @@ services:
     ports:
       - "{{ dpp_port }}:8080"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_URI=mongodb://{{ dpp_mongo_root_username }}:{{ dpp_mongo_root_password }}@mongodb:27017/dpp_db?authSource=admin
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY={{ dpp_minio_root_user }}
       - MINIO_SECRET_KEY={{ dpp_minio_root_password }}

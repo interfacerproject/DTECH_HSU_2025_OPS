@@ -21,6 +21,7 @@
     state: directory
     owner: root
     group: root
+    mode: "0664"
 
 - name: Copy import script
   ansible.builtin.template:
@@ -28,6 +29,7 @@
     dest: "{{ losh_basedir }}/losh_import.sh"
     owner: root
     group: root
+    mode: "0664"
 
 - name: Copy env file
   ansible.builtin.template:
@@ -35,6 +37,7 @@
     dest: "{{ losh_basedir }}/.env"
     owner: root
     group: root
+    mode: "0664"
 
 - name: Changing perm of "losh_import.sh", adding "+x"
   ansible.builtin.file:
@@ -45,4 +48,6 @@
   ansible.builtin.cron:
     name: "check losh available"
     weekday: 0
+    minute: 0
+    hour: 1
     job: "cd {{ losh_basedir }} && ./losh_import.sh"
