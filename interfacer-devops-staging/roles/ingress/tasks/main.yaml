@@ -20,7 +20,15 @@
     name:
       - caddy
       - tmux
-    state: latest
+    state: present
+
+- name: Ensure caddy config directory exists
+  ansible.builtin.file:
+    path: /etc/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
 - name: Create Caddyfile
   ansible.builtin.template:
@@ -28,6 +36,7 @@
     dest: "/etc/caddy/Caddyfile"
     owner: root
     group: root
+    mode: "0644"
 
 - name: Restart caddy
   ansible.builtin.service:

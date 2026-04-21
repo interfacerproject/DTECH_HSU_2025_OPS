@@ -14,12 +14,5 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# version: "3"
-services:
-  gui:
-    image: {{ gui_image_name }}:{{ gui_suffix if gui_suffix else 'latest' }}
-    ports:
-      - 3000:3000
-    env_file:
-      - ./gui.env
-
+---
+watchtower_basedir: "/watchtower"

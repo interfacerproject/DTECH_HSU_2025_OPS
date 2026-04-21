@@ -13,64 +13,36 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 ---
+- name: Load vault secrets
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/inventory/group_vars/all/vault.yml"
+
 - name: Create base directory
   ansible.builtin.file:
-    path: "{{ dpp_basedir }}"
+    path: "{{ watchtower_basedir }}"
     state: directory
     owner: root
     group: root
-    mode: "0664"
-
-- name: Create MongoDB data directory
-  ansible.builtin.file:
-    path: "{{ dpp_basedir }}/mongodb_data"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-
-- name: Create MongoDB config directory
-  ansible.builtin.file:
-    path: "{{ dpp_basedir }}/mongodb_config"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-
-- name: Prune containers older than 24h
-  community.docker.docker_prune:
-    containers: true
-    containers_filters:
-      # only consider containers created more than 24 hours ago
-      until: 24h
+    mode: "0644"
 
 - name: Create docker-compose.yaml
   ansible.builtin.template:
     src: docker-compose.yaml.j2
-    dest: "{{ dpp_basedir }}/docker-compose.yaml"
-    owner: root
-    group: root
-    mode: "0664"
-
-- name: Create mongod.conf
-  ansible.builtin.template:
-    src: mongod.conf.j2
-    dest: "{{ dpp_basedir }}/mongod.conf"
+    dest: "{{ watchtower_basedir }}/docker-compose.yaml"
     owner: root
     group: root
     mode: "0644"
 
 - name: Tear down existing services
   community.docker.docker_compose_v2:
-    project_src: "{{ dpp_basedir }}/"
+    project_src: "{{ watchtower_basedir }}/"
     state: absent
 
 - name: Create and start services
   community.docker.docker_compose_v2:
     pull: always
-    project_src: "{{ dpp_basedir }}/"
+    project_src: "{{ watchtower_basedir }}/"
   register: output
 
 - name: Debug output

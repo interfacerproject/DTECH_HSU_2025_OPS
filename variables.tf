@@ -47,3 +47,9 @@ variable "suffix" {
 }
 
 variable "hetzner_ssh_key_name" {}
+
+variable "enable_watchtower" {
+  description = "Deploy Watchtower to auto-update the GUI container when image changes"
+  type        = bool
+  default     = false
+}

@@ -138,6 +138,7 @@ ansible-playbook -i ${local_file.ansible_inventory.filename} \
 --vault-password-file interfacer-devops-staging/.vault_pass \
 -e domain_name=${local.hostname} \
 -e gui_suffix=${var.suffix} \
+-e enable_watchtower=${var.enable_watchtower} \
 interfacer-devops-staging/install-proxy.yaml
 EOT
   }
