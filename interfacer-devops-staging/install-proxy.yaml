@@ -88,6 +88,7 @@
     - zenflows
     - dpp
     - proxy
+    - feedback
     - gui
     - ifacerlosh
     - ingress

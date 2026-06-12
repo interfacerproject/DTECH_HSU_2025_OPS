@@ -76,6 +76,15 @@ resource "gandi_livedns_record" "dpp_interfacer" {
   depends_on = [hcloud_server.interfacer]
 }
 
+resource "gandi_livedns_record" "feedback_interfacer" {
+  zone       = var.domain
+  name       = "feedback.${gandi_livedns_record.interfacer.name}"
+  type       = "A"
+  ttl        = 300
+  values     = [hcloud_server.interfacer.ipv4_address]
+  depends_on = [hcloud_server.interfacer]
+}
+
 resource "null_resource" "wait_for_ping" {
   depends_on = [hcloud_server.interfacer]
 
