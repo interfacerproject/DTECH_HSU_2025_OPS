@@ -17,3 +17,7 @@
 {{ dpp_domain_name }} {
         reverse_proxy localhost:{{ dpp_port }}
 }
+
+{{ feedback_domain_name }} {
+        reverse_proxy localhost:{{ feedback_port }}
+}

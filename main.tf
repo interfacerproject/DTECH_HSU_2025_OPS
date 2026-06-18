@@ -73,6 +73,13 @@ resource "dns_a_record_set" "dpp_interfacer" {
   ttl       = 300
 }
 
+resource "dns_a_record_set" "feedback_interfacer" {
+  zone      = "${var.domain}."
+  name      = "feedback.${local.name_with_suffix}"
+  addresses = [hcloud_server.interfacer.ipv4_address]
+  ttl       = 300
+}
+
 resource "null_resource" "wait_for_ping" {
   depends_on = [
     hcloud_server.interfacer,

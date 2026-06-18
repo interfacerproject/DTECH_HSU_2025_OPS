@@ -4,3 +4,5 @@ zenflows_domain_name: "zenflows.{{ domain_name }}"
 zenflows: "https://zenflows.{{ domain_name }}"
 zenflows_port: 8000
 proxy_port: 20000
+dpp_domain_name: "interfacer-dpp.{{ domain_name }}"
+feedback_domain_name: "feedback.{{ domain_name }}"
