@@ -76,13 +76,13 @@
 
 - name: Print architecture variables
   ansible.builtin.debug:
-    msg: "Architecture: {{ ansible_architecture }}, Codename: {{ ansible_lsb.codename }}"
+    msg: "Architecture: {{ ansible_architecture }}, Codename: {{
+      ansible_lsb.codename }}"
 
 - name: Add Docker repository
   ansible.builtin.apt_repository:
-    repo:
-      deb [arch={{ arch_mapping[ansible_architecture] | default(ansible_architecture) }}
-      signed-by=/etc/apt/keyrings/docker.gpg]
+    repo: deb [arch={{ docker_arch_mapping[ansible_architecture] |
+      default(ansible_architecture) }} signed-by=/etc/apt/keyrings/docker.gpg]
       https://download.docker.com/linux/debian {{ ansible_lsb.codename }} stable
     filename: docker
     state: present

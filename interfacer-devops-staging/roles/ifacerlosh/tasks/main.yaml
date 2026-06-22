@@ -13,11 +13,10 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 ---
 - name: Create base directory
   ansible.builtin.file:
-    path: "{{ losh_basedir }}"
+    path: "{{ ifacerlosh_basedir }}"
     state: directory
     owner: root
     group: root
@@ -26,7 +25,7 @@
 - name: Copy import script
   ansible.builtin.template:
     src: losh_import.sh.j2
-    dest: "{{ losh_basedir }}/losh_import.sh"
+    dest: "{{ ifacerlosh_basedir }}/losh_import.sh"
     owner: root
     group: root
     mode: "0664"
@@ -34,14 +33,14 @@
 - name: Copy env file
   ansible.builtin.template:
     src: .env.j2
-    dest: "{{ losh_basedir }}/.env"
+    dest: "{{ ifacerlosh_basedir }}/.env"
     owner: root
     group: root
     mode: "0664"
 
 - name: Changing perm of "losh_import.sh", adding "+x"
   ansible.builtin.file:
-    dest: "{{ losh_basedir }}/losh_import.sh"
+    dest: "{{ ifacerlosh_basedir }}/losh_import.sh"
     mode: a+x
 
 - name: Set cron for losh import
@@ -50,4 +49,4 @@
     weekday: 0
     minute: 0
     hour: 1
-    job: "cd {{ losh_basedir }} && ./losh_import.sh"
+    job: "cd {{ ifacerlosh_basedir }} && ./losh_import.sh"

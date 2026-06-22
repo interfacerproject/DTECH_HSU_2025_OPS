@@ -39,7 +39,7 @@ services:
     image: ghcr.io/interfacerproject/zenflows-inbox:main
     working_dir: /app
     ports:
-      - "{{ inbox_port }}:80"
+      - "{{ proxy_inbox_port }}:80"
     environment:
       TT_HOST: "db_inbox:3500"
       TT_USER: "inbox"
@@ -88,7 +88,7 @@ services:
     image: "ghcr.io/interfacerproject/zenflows-wallet-db:main"
     restart: always
     ports:
-      - "{{ wallet_port }}:3500"
+      - "{{ proxy_wallet_port }}:3500"
     volumes:
       - wallet_data:/var/lib/tarantool
     logging:

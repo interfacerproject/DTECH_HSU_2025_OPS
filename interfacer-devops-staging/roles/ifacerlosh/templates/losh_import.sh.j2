@@ -1,5 +1,5 @@
-docker pull {{ loshifacer_image }}
-docker run --env-file .env {{ loshifacer_image }}
+docker pull {{ ifacerlosh_image }}
+docker run --env-file .env {{ ifacerlosh_image }}
 current_date=$(date +'%Y-%m-%d %H:%M:%S')
 printf "%s START LOSH CHECK\n" "$current_date" >>/var/log/losh_cron.log
 
