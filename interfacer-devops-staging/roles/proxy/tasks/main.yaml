@@ -13,11 +13,10 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 ---
 - name: Create base directory
   ansible.builtin.file:
-    path: "{{ basedir }}"
+    path: "{{ proxy_basedir }}"
     state: directory
     owner: root
     group: root
@@ -33,20 +32,20 @@
 - name: Create docker-compose.yaml
   ansible.builtin.template:
     src: docker-compose.yaml.j2
-    dest: "{{ basedir }}/docker-compose.yaml"
+    dest: "{{ proxy_basedir }}/docker-compose.yaml"
     owner: root
     group: root
     mode: "0664"
 
 - name: Tear down existing services
   community.docker.docker_compose_v2:
-    project_src: "{{ basedir }}/"
+    project_src: "{{ proxy_basedir }}/"
     state: absent
 
 - name: Create and start services
   community.docker.docker_compose_v2:
     pull: always
-    project_src: "{{ basedir }}/"
+    project_src: "{{ proxy_basedir }}/"
   register: output
 
 - name: Debug output

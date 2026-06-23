@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 ---
 - name: Load vault secrets
   ansible.builtin.include_vars:
@@ -21,7 +20,7 @@
 
 - name: Create base directory
   ansible.builtin.file:
-    path: "{{ basedir }}"
+    path: "{{ gui_basedir }}"
     state: directory
     owner: root
     group: root
@@ -37,7 +36,7 @@
 - name: Create docker-compose.yaml
   ansible.builtin.template:
     src: docker-compose.yaml.j2
-    dest: "{{ basedir }}/docker-compose.yaml"
+    dest: "{{ gui_basedir }}/docker-compose.yaml"
     owner: root
     group: root
     mode: "0644"
@@ -45,20 +44,20 @@
 - name: Create .env for gui
   ansible.builtin.template:
     src: gui.env.j2
-    dest: "{{ basedir }}/gui.env"
+    dest: "{{ gui_basedir }}/gui.env"
     owner: root
     group: root
     mode: "0600"
 
 - name: Tear down existing services
   community.docker.docker_compose_v2:
-    project_src: "{{ basedir }}/"
+    project_src: "{{ gui_basedir }}/"
     state: absent
 
 - name: Create and start services
   community.docker.docker_compose_v2:
     pull: always
-    project_src: "{{ basedir }}/"
+    project_src: "{{ gui_basedir }}/"
   register: output
 
 - name: Debug output

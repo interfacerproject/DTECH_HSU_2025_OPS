@@ -13,8 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 ---
-basedir: "/interfacer-gui"
-cycle_start_date: "{{ ansible_date_time.date }}"
-cycle_length: 15
+gui_basedir: "/interfacer-gui"
+gui_cycle_start_date: "{{ ansible_date_time.date }}"
+gui_cycle_length: 15

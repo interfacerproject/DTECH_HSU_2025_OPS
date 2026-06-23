@@ -1,2 +1,2 @@
-loshifacer_image: ghcr.io/interfacerproject/loshifacer:latest
-losh_basedir: /loshifacer
+ifacerlosh_image: ghcr.io/interfacerproject/loshifacer:latest
+ifacerlosh_basedir: /loshifacer

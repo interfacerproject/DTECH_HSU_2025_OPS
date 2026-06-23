@@ -13,9 +13,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 ---
-basedir: "/interfacer-gateway-{{ proxy_port }}"
-ifacer_log: /var/log/interfacer-test/
-inbox_port: 21000
-wallet_port: 22000
+proxy_basedir: "/interfacer-gateway-{{ proxy_port }}"
+proxy_ifacer_log: /var/log/interfacer-test/
+proxy_inbox_port: 21000
+proxy_wallet_port: 22000
