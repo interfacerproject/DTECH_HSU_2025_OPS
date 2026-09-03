@@ -304,6 +304,25 @@ tofu apply -var="name=dpp-staging" -var="domain=dnstest.example.org" -var="suffi
 
 This creates `dpp-staging-tchibo.dnstest.example.org` and uses the Docker image `ghcr.io/interfacerproject/interfacer-gui-tchibo:tchibo`.
 
+**Naming: `name` and `suffix`**
+
+The host name is built from both variables, and either one may be left empty (but not both):
+
+| `name` | `suffix` | Resulting host |
+|---|---|---|
+| `dpp-staging` | `tchibo` | `dpp-staging-tchibo.example.org` |
+| *(empty)* | `tchibo` | `tchibo.example.org` |
+| `dpp-staging` | *(empty)* | `dpp-staging.example.org` |
+| *(empty)* | *(empty)* | rejected at plan time |
+
+Both variables default to `""`, so a suffix-only deployment can omit `name` entirely:
+
+```bash
+tofu apply -var="domain=dnstest.example.org" -var="suffix=tchibo"
+```
+
+Note that `suffix` still drives the GUI image name (`interfacer-gui-tchibo`) regardless of `name`.
+
 **Manage workspaces:**
 
 ```bash

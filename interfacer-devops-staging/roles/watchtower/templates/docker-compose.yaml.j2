@@ -24,5 +24,7 @@ services:
       - DOCKER_API_VERSION=1.44
       - WATCHTOWER_POLL_INTERVAL=300
       - WATCHTOWER_CLEANUP=true
-      - REPO_USER={{ ghcr_username }}
-      - REPO_PASS={{ ghcr_token }}
+      # No REPO_USER/REPO_PASS: they would be sent to *every* registry
+      # (docker.io included) and all ghcr.io/interfacerproject packages are
+      # public, so watchtower authenticates anonymously. If a package becomes
+      # private, mount a docker config.json at /config.json instead.

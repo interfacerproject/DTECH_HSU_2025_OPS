@@ -112,3 +112,37 @@
     - role: watchtower
       tags: watchtower
       when: enable_watchtower | default(false) | bool
+
+# Runs last, with every service already up: images backing a running container
+# are never touched by the prune. Without this the layers of every superseded
+# :latest pull accumulate until the root filesystem runs out of inodes.
+- name: Reclaim disk space
+  hosts: all
+  remote_user: root
+  gather_facts: false
+  tags: cleanup
+  tasks:
+    - name: Prune unused images and build cache
+      community.docker.docker_prune:
+        images: true
+        images_filters:
+          # keep unused images for a week, in case a rollback needs them
+          until: 168h
+          dangling: false
+        builder_cache: true
+      register: prune_result
+
+    - name: Report reclaimed space
+      ansible.builtin.debug:
+        msg: >-
+          Removed {{ prune_result.images | default([]) | length }} images,
+          reclaimed {{ (prune_result.images_space_reclaimed | default(0) / 1024 / 1024) | round(1) }} MB
+
+    - name: Report free inodes
+      ansible.builtin.command: df -i /
+      register: df_inodes
+      changed_when: false
+
+    - name: Show inode usage
+      ansible.builtin.debug:
+        var: df_inodes.stdout_lines

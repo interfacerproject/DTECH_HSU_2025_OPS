@@ -37,13 +37,20 @@ variable "domain" {
 }
 
 variable "name" {
-  description = "Third level domain name"
+  description = "Third level domain name. May be empty when suffix is set, giving suffix.domain"
   type        = string
+  default     = ""
 }
 
 variable "suffix" {
   description = "Optional suffix for instance name and GUI service (e.g., 'tchibo')"
   type        = string
+  default     = ""
+
+  validation {
+    condition     = var.name != "" || var.suffix != ""
+    error_message = "At least one of name or suffix must be set: the host name is name-suffix, or whichever of the two is set."
+  }
 }
 
 variable "hetzner_ssh_key_name" {}

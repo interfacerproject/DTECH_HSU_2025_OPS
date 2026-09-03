@@ -38,6 +38,10 @@ resource "hcloud_server" "interfacer" {
   image       = "debian-12"
   server_type = "cx33"
   ssh_keys    = [var.hetzner_ssh_key_name]
+
+  # Must be kept in sync with each other (hcloud provider requirement).
+  # delete_protection  = false
+  # rebuild_protection = false
 }
 
 output "instance_public_ip" {
@@ -92,8 +96,9 @@ resource "null_resource" "wait_for_ping" {
 }
 
 locals {
-  depends_on       = null_resource.wait_for_ping
-  name_with_suffix = var.suffix != "" ? "${var.name}-${var.suffix}" : var.name
+  depends_on = null_resource.wait_for_ping
+  # name + suffix -> "name-suffix"; only one of the two set -> that one alone
+  name_with_suffix = var.name != "" && var.suffix != "" ? "${var.name}-${var.suffix}" : "${var.name}${var.suffix}"
   hostname         = "${local.name_with_suffix}.${var.domain}"
   known_hosts_file = "$HOME/.ssh/known_hosts"
 }
@@ -122,16 +127,22 @@ resource "null_resource" "add_ssh_key_to_known_hosts" {
   depends_on = [null_resource.wait_for_ping]
   triggers = {
     hostname         = local.hostname
+    ipv4_address     = hcloud_server.interfacer.ipv4_address
     known_hosts_file = local.known_hosts_file
   }
 
   provisioner "local-exec" {
-    command = "ssh-keyscan -H ${self.triggers.hostname} >> ${local.known_hosts_file}"
+    command = "ssh-keyscan -H ${self.triggers.hostname} ${self.triggers.ipv4_address} >> ${local.known_hosts_file}"
   }
 
+  # Hetzner recycles public IPs: a stale key left behind for a reassigned
+  # address breaks the next connection to it, so drop both entries.
   provisioner "local-exec" {
     when    = destroy
-    command = "ssh-keygen -f ${self.triggers.known_hosts_file} -R ${self.triggers.hostname}"
+    command = <<EOT
+ssh-keygen -f ${self.triggers.known_hosts_file} -R ${self.triggers.hostname}
+ssh-keygen -f ${self.triggers.known_hosts_file} -R ${self.triggers.ipv4_address}
+EOT
   }
 }
 
